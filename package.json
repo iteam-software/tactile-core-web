@@ -1,0 +1,36 @@
+{
+  "name": "tactile-core-web",
+  "version": "0.0.1",
+  "description": "The tactile core package",
+  "main": "tactile-core.js",
+  "scripts": {
+    "test": "jest",
+    "build": "node scripts/build.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mlynam/tactile-core-web.git"
+  },
+  "keywords": [
+    "game-engine",
+    "web",
+    "javascript"
+  ],
+  "author": "mlynam@iteamnm.com",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/mlynam/tactile-core-web/issues"
+  },
+  "homepage": "https://github.com/mlynam/tactile-core-web#readme",
+  "devDependencies": {
+    "babel-core": "^6.25.0",
+    "babel-loader": "^7.1.1",
+    "babel-plugin-transform-object-rest-spread": "^6.23.0",
+    "babel-preset-es2017": "^6.24.1",
+    "eslint": "^4.1.1",
+    "eslint-config-google": "^0.8.0",
+    "jest": "^20.0.4",
+    "json-beautify": "^1.0.1",
+    "webpack": "^3.1.0"
+  }
+}
