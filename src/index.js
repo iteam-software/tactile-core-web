@@ -1,3 +1,10 @@
 
-// Testing build tools
-export default {hello: 'world!', ...{test: 1}};
+import {Engine} from './engine';
+import {System} from './system';
+
+const Tactile = {
+  Engine,
+  System,
+};
+
+export default Tactile;
