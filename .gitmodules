@@ -1,0 +1,3 @@
+[submodule ".vscode"]
+	path = .vscode
+	url = https://github.com/iteam-consulting/vsc-settings-web.git
