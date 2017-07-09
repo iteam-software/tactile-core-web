@@ -73,6 +73,7 @@ export class Engine {
           const itr = this.systems.values();
           let currentPosition = itr.next();
           while (!currentPosition.done) {
+            currentPosition.value.update();
             currentPosition = itr.next();
           }
         } catch (e) {
@@ -88,5 +89,12 @@ export class Engine {
 
       tick();
     });
+  }
+
+  /**
+   * 
+   */
+  stop() {
+    this.isRunning = false;
   }
 }

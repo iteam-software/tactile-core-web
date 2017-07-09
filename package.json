@@ -37,5 +37,10 @@
   },
   "dependencies": {
     "immutable": "^3.8.1"
+  },
+  "jest": {
+    "setupFiles": [
+      "./polyfills/requestAnimationFrame.js"
+    ]
   }
 }
