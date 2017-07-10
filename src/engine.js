@@ -71,6 +71,7 @@ export class Engine {
   run() {
     this._isRunning = true;
     this._timer.start();
+    let delta = this._timer.getDelta();
 
     // We lock the systems when we begin to run
     const systems = this._systems.toArray();
@@ -84,10 +85,9 @@ export class Engine {
 
     return new Promise((resolve, reject) => {
       const tick = () => {
+        delta = this._timer.getDelta();
         try {
           // Update and render cycles.
-          const systems = this._systems.toArray();
-          const delta = this._timer.getDelta();
           for (let index = 0; index < systems.length; ++index) {
             systems[index].update(delta, this._store);
           }
