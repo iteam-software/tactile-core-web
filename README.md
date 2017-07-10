@@ -13,6 +13,8 @@ and finally
 
 ```npm install```
 
+Please visit our [contributing doc](https://github.com/mlynam/tactile-core-web/blob/master/CONTRIBUTING.md) for commit guidelines.
+
 ### VS Code Users
 This repository comes with a .vscode settings submodule where several extensions
 are recommended to improve the community development experience. The settings
