@@ -1,6 +1,7 @@
 
 import {System} from './system';
 import {OrderedMap} from 'immutable';
+import {Timer} from './timer';
 
 /**
  * The core engine class.
@@ -11,9 +12,10 @@ export class Engine {
    * @param {Store} state The redux game state.
    */
   constructor(state) {
-    this.isRunning = false;
-    this.systems = new OrderedMap();
-    this.gameState = state;
+    this._isRunning = false;
+    this._systems = new OrderedMap();
+    this._gameState = state;
+    this._timer = new Timer();
   }
 
   /**
@@ -29,7 +31,7 @@ export class Engine {
     }
 
     const id = this.getSystemId(system);
-    this.systems = this.systems.set(id, system);
+    this._systems = this._systems.set(id, system);
 
     return id;
   }
@@ -48,7 +50,7 @@ export class Engine {
     }
 
     if (id) {
-      this.systems = this.systems.delete(id);
+      this._systems = this._systems.delete(id);
     }
   }
 
@@ -65,22 +67,22 @@ export class Engine {
    * @return {Promise} A promise that will resolve 
    */
   run() {
-    this.isRunning = true;
+    this._isRunning = true;
+    this._timer.start();
     return new Promise((resolve, reject) => {
       const tick = () => {
         try {
           // Update and render cycles.
-          const itr = this.systems.values();
-          let currentPosition = itr.next();
-          while (!currentPosition.done) {
-            currentPosition.value.update();
-            currentPosition = itr.next();
+          const systems = this._systems.toArray();
+          const delta = this._timer.getDelta();
+          for (let index = 0; index < systems.length; ++index) {
+            systems[index].update(delta);
           }
         } catch (e) {
           reject(e);
         }
 
-        if (this.isRunning) {
+        if (this._isRunning) {
           requestAnimationFrame(tick);
         } else {
           resolve();
@@ -95,6 +97,6 @@ export class Engine {
    * 
    */
   stop() {
-    this.isRunning = false;
+    this._isRunning = false;
   }
 }

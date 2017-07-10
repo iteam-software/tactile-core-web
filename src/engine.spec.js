@@ -37,7 +37,7 @@ it('should add a system', () => {
   const system = new TestSystem();
   const id = engine.addSystem(system);
   expect(id).toBe(engine.getSystemId(system));
-  expect(engine.systems.size).toBe(1);
+  expect(engine._systems.size).toBe(1);
 });
 
 it('should throw when you try to add a null system', () => {
@@ -54,7 +54,7 @@ it('should remove a system given a system id', () => {
   const engine = new Engine();
   const id = engine.addSystem(new TestSystem());
   engine.removeSystem(id);
-  expect(engine.systems.size).toBe(0);
+  expect(engine._systems.size).toBe(0);
 });
 
 it('should remove a system given a system', () => {
@@ -63,11 +63,11 @@ it('should remove a system given a system', () => {
   engine.addSystem(system);
 
   // Pre act assertion
-  expect(engine.systems.size).toBe(1);
+  expect(engine._systems.size).toBe(1);
 
   // Act
   engine.removeSystem(system);
-  expect(engine.systems.size).toBe(0);
+  expect(engine._systems.size).toBe(0);
 });
 
 it('should start and stop', () => {

@@ -33,6 +33,7 @@
     "eslint-config-google": "^0.8.0",
     "jest": "^20.0.4",
     "json-beautify": "^1.0.1",
+    "performance-now": "^2.1.0",
     "webpack": "^3.1.0"
   },
   "dependencies": {
