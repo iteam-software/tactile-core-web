@@ -1,7 +1,9 @@
 # TACTILE*web*
 ## Game Engine Core
+Welcome to the TACTILE*web* game engine core library!
 
-Welcome to the game engine core library!
+The purpose of this codebase is to export a kernel which provides enough
+surface area to run a very wide array of game genres.
 
 ## Contributing
 Thank you for your desire to help improve the TACTILE*web* library. To get
@@ -13,7 +15,8 @@ and finally
 
 ```npm install```
 
-Please visit our [contributing doc](https://github.com/mlynam/tactile-core-web/blob/master/CONTRIBUTING.md) for commit guidelines.
+Please visit our [contributing doc](https://github.com/mlynam/tactile-core-web/blob/master/CONTRIBUTING.md) for
+commit guidelines.
 
 ### VS Code Users
 This repository comes with a .vscode settings submodule where several extensions

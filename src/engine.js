@@ -1,4 +1,5 @@
 
+import {createStore, combineReducers} from 'redux';
 import {System} from './system';
 import {OrderedMap} from 'immutable';
 import {Timer} from './timer';
@@ -13,8 +14,9 @@ export class Engine {
    */
   constructor(state) {
     this._isRunning = false;
+    this._store = null;
     this._systems = new OrderedMap();
-    this._gameState = state;
+    this._gameState = state || {};
     this._timer = new Timer();
   }
 
@@ -69,6 +71,17 @@ export class Engine {
   run() {
     this._isRunning = true;
     this._timer.start();
+
+    // We lock the systems when we begin to run
+    const systems = this._systems.toArray();
+    const reducers = systems.map((s) => ({
+      [this.getSystemId(s)]: s.reducer,
+    }));
+
+    // Setup the store
+    const rootReducer = combineReducers(Object.assign(...reducers));
+    this._store = createStore(rootReducer, this._gameState);
+
     return new Promise((resolve, reject) => {
       const tick = () => {
         try {
@@ -76,7 +89,7 @@ export class Engine {
           const systems = this._systems.toArray();
           const delta = this._timer.getDelta();
           for (let index = 0; index < systems.length; ++index) {
-            systems[index].update(delta);
+            systems[index].update(delta, this._store);
           }
         } catch (e) {
           reject(e);

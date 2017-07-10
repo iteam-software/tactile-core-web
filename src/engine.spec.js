@@ -4,9 +4,7 @@ import {System} from './system';
 
 // eslint-disable-next-line
 class TestSystem extends System {
-  /**
-   * Construct a test system.
-   */
+  // eslint-disable-next-line
   constructor() {
     super();
     this.runCount = 0;
@@ -14,9 +12,14 @@ class TestSystem extends System {
   /**
    * Handle test updating
    * @param {object} delta The frame delta.
+   * @param {object} store The game store.
    */
-  update(delta) {
+  update(delta, store) {
     ++this.runCount;
+  }
+  // eslint-disable-next-line  
+  reducer(state = {}, action) {
+    return state;
   }
 }
 
@@ -25,6 +28,10 @@ class ThrowingSystem extends System {
   // eslint-disable-next-line  
   update(delta) {
     throw new Error('This system throws!');
+  }
+  // eslint-disable-next-line
+  reducer(state = {}, action) {
+    return state;
   }
 }
 
