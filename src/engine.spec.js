@@ -43,7 +43,7 @@ it('should add a system', () => {
   const engine = new Engine();
   const system = new TestSystem();
   const id = engine.addSystem(system);
-  expect(id).toBe(engine.getSystemId(system));
+  expect(id).toBe(Engine.getSystemId(system));
   expect(engine._systems.size).toBe(1);
 });
 
@@ -84,7 +84,7 @@ it('should start and stop', () => {
   const system = new TestSystem();
   engine.addSystem(system);
 
-  const promise = engine.run().then(() => {
+  const promise = engine.start().then(() => {
     expect(system.runCount).toBe(2);
     return true;
   });
@@ -102,7 +102,7 @@ it('should reject when a system throws', () => {
   const system = new ThrowingSystem();
   engine.addSystem(system);
 
-  const promise = engine.run();
+  const promise = engine.start();
   engine.stop();
 
   jest.runOnlyPendingTimers();

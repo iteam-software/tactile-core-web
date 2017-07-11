@@ -18,7 +18,6 @@ export class Engine {
     this._systems = new OrderedMap();
     this._renderers = new OrderedMap();
     this._gameState = state || {};
-    this._timer = new Timer();
   }
 
   /**
@@ -33,7 +32,7 @@ export class Engine {
       throw new Error('The system must be of type Tactile.System.');
     }
 
-    const id = this.getSystemId(system);
+    const id = Engine.getSystemId(system);
     this._systems = this._systems.set(id, system);
 
     return id;
@@ -49,7 +48,7 @@ export class Engine {
     if (typeof system === 'string') {
       id = system;
     } else if (system instanceof System) {
-      id = this.getSystemId(system);
+      id = Engine.getSystemId(system);
     }
 
     if (id) {
@@ -62,37 +61,76 @@ export class Engine {
    * @param {System} system The system to get an id for.
    * @return {string} The Id of the system.
    */
-  getSystemId(system) {
+  static getSystemId(system) {
     return system.constructor.name;
   }
 
   /**
-   * @return {Promise} A promise that will resolve 
+   * Start the engine
+   * @return {Promise} A promise that the engine will start.
    */
-  run() {
-    const os = require('os');
+  start() {
     this._isRunning = true;
-    this._timer.start();
-    let delta = this._timer.getDelta();
 
     // We lock the systems when we begin to run
+    const renderers = this._renderers.toArray();
     const systems = this._systems.toArray();
     const reducers = systems.map((s) => ({
-      [this.getSystemId(s)]: s.reducer,
+      [Engine.getSystemId(s)]: s.reducer,
     }));
 
     // Setup the store
     const rootReducer = combineReducers(Object.assign(...reducers));
     this._store = createStore(rootReducer, this._gameState);
 
+    return this._singleThreadedRun(systems, renderers);
+  }
+
+  /**
+   * Stop the engine.
+   */
+  stop() {
+    this._isRunning = false;
+  }
+
+  /**
+   * 
+   * @param {Array} systems The systems array
+   * @return {Array} An array of update callbacks.
+   */
+  static makeUpdaters(systems) {
+    return systems.map((s) => s.update.bind(s));
+  }
+
+  /**
+   * 
+   * @param {Array} renderers The renderers to extract the draw from.
+   * @return {Array} An array of draw callbacks.
+   */
+  static makeRenderers(renderers) {
+    return renderers.map((r) => r.draw.bind(r));
+  }
+
+  /**
+   * Begin a single threaded run.
+   * @param {Array} systems Array of system update functions.
+   * @param {Array} renderers Array of renderer draw functions.
+   * @return {Promise} The promise to run.
+   */
+  _singleThreadedRun(systems, renderers) {
+    const timer = new Timer();
+    const renderUpdaters = Engine.makeRenderers(renderers);
+    const systemUpdaters = Engine.makeUpdaters(systems);
+
     return new Promise((resolve, reject) => {
       const tick = () => {
-        delta = this._timer.getDelta();
+        const delta = timer.getDelta();
+        const state = this._store.getState();
+
         try {
-          // Update and render cycles.
-          for (let index = 0; index < systems.length; ++index) {
-            systems[index].update(delta, this._store);
-          }
+          this._runUpdater(renderUpdaters, delta, state);
+          this._runUpdater(systemUpdaters, delta, this._store);
+          timer.tick();
         } catch (e) {
           reject(e);
         }
@@ -109,49 +147,14 @@ export class Engine {
   }
 
   /**
-   * 
-   */
-  stop() {
-    this._isRunning = false;
-  }
-
-  /**
-   * Execute a single threaded pass.
-   * @param {Array} systems Array of system update functions.
-   * @param {Array} renderers Array of renderer draw functions.
-   * @param {number} delta The current timestep.
-   */
-  async _singleThreadedRun(systems, renderers, delta) {
-    await this._runUpdater(renderers, delta, this._store.getState());
-    await this._runUpdater(systems, delta, this._store);
-  }
-
-  _multiThreadedRun(systems, renderers, timer) {
-    const cluster = require('cluster');
-    if (cluster.isMaster) {
-      const renderer = cluster.fork();
-    } else {
-
-    }
-  }
-
-  /**
    * Run some updaters.
    * @param {Array} updaters An array of functions meant to update.
    * @param {number} delta The delta for this step.
    * @param {object} store The game store.
-   * @return {Promise} A promise to update.
    */
   _runUpdater(updaters, delta, store) {
-    return new Promise((resolve, reject) => {
-      try {
-        for (let i = 0; i < updaters.length; ++i) {
-          updaters[i](delta, store);
-          resolve();
-        }
-      } catch (e) {
-        reject(e);
-      }
-    });
+    for (let i = 0; i < updaters.length; ++i) {
+      updaters[i](delta, store);
+    }
   }
 }
