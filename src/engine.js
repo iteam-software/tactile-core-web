@@ -16,6 +16,7 @@ export class Engine {
     this._isRunning = false;
     this._store = null;
     this._systems = new OrderedMap();
+    this._renderers = new OrderedMap();
     this._gameState = state || {};
     this._timer = new Timer();
   }
@@ -69,6 +70,7 @@ export class Engine {
    * @return {Promise} A promise that will resolve 
    */
   run() {
+    const os = require('os');
     this._isRunning = true;
     this._timer.start();
     let delta = this._timer.getDelta();
@@ -111,5 +113,45 @@ export class Engine {
    */
   stop() {
     this._isRunning = false;
+  }
+
+  /**
+   * Execute a single threaded pass.
+   * @param {Array} systems Array of system update functions.
+   * @param {Array} renderers Array of renderer draw functions.
+   * @param {number} delta The current timestep.
+   */
+  async _singleThreadedRun(systems, renderers, delta) {
+    await this._runUpdater(renderers, delta, this._store.getState());
+    await this._runUpdater(systems, delta, this._store);
+  }
+
+  _multiThreadedRun(systems, renderers, timer) {
+    const cluster = require('cluster');
+    if (cluster.isMaster) {
+      const renderer = cluster.fork();
+    } else {
+
+    }
+  }
+
+  /**
+   * Run some updaters.
+   * @param {Array} updaters An array of functions meant to update.
+   * @param {number} delta The delta for this step.
+   * @param {object} store The game store.
+   * @return {Promise} A promise to update.
+   */
+  _runUpdater(updaters, delta, store) {
+    return new Promise((resolve, reject) => {
+      try {
+        for (let i = 0; i < updaters.length; ++i) {
+          updaters[i](delta, store);
+          resolve();
+        }
+      } catch (e) {
+        reject(e);
+      }
+    });
   }
 }

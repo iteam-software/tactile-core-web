@@ -1,9 +1,10 @@
 {
   "parserOptions": {
-    "ecmaVersion": 7,
+    "ecmaVersion": 8,
     "ecmaFeatures": {
       "experimentalObjectRestSpread": true,
-      "modules": true
+      "modules": true,
+      "generators": true
     },
     "sourceType": "module"
   },
