@@ -1,5 +1,6 @@
 # packages
 node_modules/
+npm-debug.log
 
 # build artifacts
 dist/
