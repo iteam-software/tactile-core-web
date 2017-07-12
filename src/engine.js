@@ -132,6 +132,9 @@ export class Engine {
     const renderCallbacks = Engine.makeSystemCallbacks(renderers, 'draw');
     const updateCallbacks = Engine.makeSystemCallbacks(updaters, 'update');
 
+    // Start counting time
+    timer.start();
+
     return new Promise((resolve, reject) => {
       const tick = () => {
         const delta = timer.getDelta();
