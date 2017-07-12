@@ -15,7 +15,6 @@ export class Engine {
    */
   constructor(state) {
     this._gameState = state || {};
-    this._isRunning = false;
     this._store = null;
     this._systems = new OrderedMap();
   }
@@ -75,8 +74,6 @@ export class Engine {
    * @return {Promise} A promise that the engine will start.
    */
   start() {
-    this._isRunning = true;
-
     // We lock the systems when we begin to run
     const renderers = this._systems
       .filter((s) => s instanceof Renderer)
@@ -89,8 +86,17 @@ export class Engine {
     }));
 
     // Setup the store
-    const rootReducer = combineReducers(Object.assign(...reducers));
+    const systemReducers = Object.assign(...reducers);
+    const rootReducer = combineReducers({
+      engine: this._engineReducer.bind(this),
+      ...systemReducers,
+    });
     this._store = createStore(rootReducer, this._gameState);
+
+    // Dispatch the start
+    this._store.dispatch({
+      type: 'Engine/Start',
+    });
 
     return this._singleThreadedRun(updaters, renderers);
   }
@@ -99,7 +105,9 @@ export class Engine {
    * Stop the engine.
    */
   stop() {
-    this._isRunning = false;
+    this._store.dispatch({
+      type: 'Engine/Stop',
+    });
   }
 
   /**
@@ -137,7 +145,7 @@ export class Engine {
           reject(e);
         }
 
-        if (this._isRunning) {
+        if (state.engine.isRunning) {
           requestAnimationFrame(tick);
         } else {
           resolve();
@@ -146,6 +154,21 @@ export class Engine {
 
       tick();
     });
+  }
+
+  /**
+   * Redux reducer for the 'engine' substate.
+   * @param {object} state The state we are reducing from.
+   * @param {object} action The action we are reducing.
+   * @return {object} The new state (or old if we don't handle this action).
+   */
+  _engineReducer(state = {isRunning: false}, {type}) {
+    if (type === 'Engine/Start') {
+      return Object.assign({}, state, {isRunning: true});
+    } else if (type === 'Engine/Stop') {
+      return Object.assign({}, state, {isRunning: false});
+    }
+    return state;
   }
 
   /**

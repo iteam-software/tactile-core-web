@@ -16,10 +16,16 @@ class TestUpdater extends Updater {
    * @param {object} store The game store.
    */
   update(delta, store) {
+    store.dispatch({
+      type: 'Hello/World!',
+    });
     ++this.runCount;
   }
   // eslint-disable-next-line  
   reducer(state = {}, action) {
+    if (action.type === 'Hello/World!') {
+      return {count: this.runCount};
+    }
     return state;
   }
 }
@@ -144,4 +150,21 @@ it('should reject when a system throws', () => {
   jest.runOnlyPendingTimers();
 
   return expect(promise).rejects.toBeTruthy();
+});
+
+it('should perform reasonably well', () => {
+  jest.useFakeTimers();
+  const engine = new Engine();
+  const system = new TestUpdater();
+  engine.addSystem(system);
+
+  return expect(new Promise((resolve, reject) => {
+    engine.start()
+      .then(() => resolve(system.runCount))
+      .catch((err) => reject(err));
+
+    setTimeout(() => engine.stop(), 2000);
+
+    jest.runAllTimers();
+  })).resolves.toBeGreaterThan(120 * .95);
 });
