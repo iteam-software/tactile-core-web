@@ -1,4 +1,6 @@
 # TACTILE*web*
+[![Build Status](https://travis-ci.org/mlynam/tactile-core-web.svg?branch=master)](https://travis-ci.org/mlynam/tactile-core-web)
+[![Coverage Status](https://coveralls.io/repos/github/mlynam/tactile-core-web/badge.svg?branch=master)](https://coveralls.io/github/mlynam/tactile-core-web?branch=master)
 ## Game Engine Core
 Welcome to the TACTILE*web* game engine core library!
 
