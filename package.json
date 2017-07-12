@@ -45,7 +45,8 @@
   },
   "dependencies": {
     "immutable": "^3.8.1",
-    "redux": "^3.7.1"
+    "redux": "^3.7.1",
+    "shortid": "^2.2.8"
   },
   "jest": {
     "setupFiles": [

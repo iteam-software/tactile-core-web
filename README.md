@@ -7,6 +7,29 @@ Welcome to the TACTILE*web* game engine core library!
 The purpose of this codebase is to export a kernel which provides enough
 surface area to run a very wide array of game genres.
 
+## Design
+Consider the following state tree:
+```json
+{
+  "engine": {"isRunning": true},
+  "updaters": {
+    "physicsUpdater": {
+      "internal": {},
+      "components": [{
+        "id": "asd34y",
+        "value": {}
+      }, {
+        "id": "0df9eg",
+        "value": { ... }
+      }]
+    }
+  },
+  "renderers": {
+    "spriteRenderer": {}
+  }
+}
+```
+
 ## Contributing
 Thank you for your desire to help improve the TACTILE*web* library. To get
 started, clone, then

@@ -28,6 +28,10 @@ class TestUpdater extends Updater {
     }
     return state;
   }
+  // eslint-disable-next-line  
+  makeComponent(init) {
+    return {hello: 'World!'};
+  }
 }
 
 // eslint-disable-next-line  

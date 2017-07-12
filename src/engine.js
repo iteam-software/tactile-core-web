@@ -1,9 +1,10 @@
 
-import {createStore, combineReducers} from 'redux';
+import {createStore, combineReducers, applyMiddleware} from 'redux';
 import {OrderedMap} from 'immutable';
 import {Updater} from './updater';
 import {Renderer} from './renderer';
 import {Timer} from './timer';
+import {EntityMiddleware} from './middleware/entity';
 
 /**
  * The core engine class.
@@ -82,7 +83,10 @@ export class Engine {
       .filter((s) => s instanceof Updater)
       .toArray();
     const reducers = updaters.map((s) => ({
-      [Engine.getSystemId(s)]: s.reducer.bind(s),
+      [s.getSystemId()]: combineReducers({
+        internal: s.reducer.bind(s),
+        components: s.componentsReducer.bind(s),
+      }),
     }));
 
     // Setup the store
@@ -91,7 +95,10 @@ export class Engine {
       engine: this._engineReducer.bind(this),
       ...systemReducers,
     });
-    this._store = createStore(rootReducer, this._gameState);
+    this._store = createStore(
+      rootReducer,
+      this._gameState,
+      applyMiddleware(EntityMiddleware));
 
     // Dispatch the start
     this._store.dispatch({
@@ -118,7 +125,10 @@ export class Engine {
    * @return {Array} An array of callbacks.
    */
   static makeSystemCallbacks(systems, name) {
-    return systems.map((s) => s[name].bind(s));
+    return systems.map((s) => ({
+      callback: s[name].bind(s),
+      type: `${s.getSystemId()}/Update`,
+    }));
   }
 
   /**
@@ -142,7 +152,7 @@ export class Engine {
 
         try {
           this._runCallbacks(renderCallbacks, delta, state);
-          this._runCallbacks(updateCallbacks, delta, this._store);
+          this._runCallbacks(updateCallbacks, delta, this._store, true);
           timer.tick();
         } catch (e) {
           reject(e);
@@ -179,10 +189,18 @@ export class Engine {
    * @param {Array} updaters An array of functions meant to run.
    * @param {number} delta The delta for this step.
    * @param {object} store The game store.
+   * @param {bool} dispatchUpdate Dispatch an update for this set of callbacks.
    */
-  _runCallbacks(updaters, delta, store) {
+  _runCallbacks(updaters, delta, store, dispatchUpdate = false) {
     for (let i = 0; i < updaters.length; ++i) {
-      updaters[i](delta, store);
+      if (dispatchUpdate) {
+        store.dispatch({
+          type: updaters[i].type,
+          components: updaters[i].callback(delta, store),
+        });
+      } else {
+        updaters[i].callback(delta, store);
+      }
     }
   }
 }
