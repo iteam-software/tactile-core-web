@@ -62,6 +62,7 @@ if (level) {
 
         const npmPublish = cmd.run('npm publish dist');
         npmPublish.stderr.on('data', (data) => console.error(data));
+        npmPublish.stdout.on('data', (data) => console.log(data));
         npmPublish.on('close', (code) => {
           if (code === 0) {
             console.log('- Creating publish commit');
@@ -69,7 +70,8 @@ if (level) {
               .add('./*')
               .commit(`chore: release v${pkg.version}`)
               .addTag(`v${pkg.version}`)
-              .push('origin', 'master');
+              .push('origin', 'master')
+              .pushTags('origin');
 
             console.log('Publish complete!');
           } else {
