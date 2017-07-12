@@ -43,6 +43,24 @@ export class Engine {
     return id;
   }
 
+    /**
+     * Remove a system from the engine. This method is idempotent.
+     * @param {number | Updater | Renderer} system The id or system we want to
+     * remove.
+     */
+  removeSystem(system) {
+    let id = null;
+    if (typeof system === 'string') {
+      id = system;
+    } else if (system instanceof Updater || system instanceof Renderer) {
+      id = Engine.getSystemId(system);
+    }
+
+    if (id) {
+      this._systems = this._systems.remove(id);
+    }
+  }
+
   /**
    * Get the system's id.
    * @param {System} system The system to get an id for.
@@ -60,9 +78,13 @@ export class Engine {
     this._isRunning = true;
 
     // We lock the systems when we begin to run
-    const renderers = this._renderers.toArray();
-    const systems = this._systems.toArray();
-    const reducers = systems.map((s) => ({
+    const renderers = this._systems
+      .filter((s) => s instanceof Renderer)
+      .toArray();
+    const updaters = this._systems
+      .filter((s) => s instanceof Updater)
+      .toArray();
+    const reducers = updaters.map((s) => ({
       [Engine.getSystemId(s)]: s.reducer,
     }));
 
@@ -70,7 +92,7 @@ export class Engine {
     const rootReducer = combineReducers(Object.assign(...reducers));
     this._store = createStore(rootReducer, this._gameState);
 
-    return this._singleThreadedRun(systems, renderers);
+    return this._singleThreadedRun(updaters, renderers);
   }
 
   /**
@@ -100,14 +122,14 @@ export class Engine {
 
   /**
    * Begin a single threaded run.
-   * @param {Array} systems Array of system update functions.
+   * @param {Array} updaters Array of system update functions.
    * @param {Array} renderers Array of renderer draw functions.
    * @return {Promise} The promise to run.
    */
-  _singleThreadedRun(systems, renderers) {
+  _singleThreadedRun(updaters, renderers) {
     const timer = new Timer();
     const renderUpdaters = Engine.makeRenderers(renderers);
-    const systemUpdaters = Engine.makeUpdaters(systems);
+    const systemUpdaters = Engine.makeUpdaters(updaters);
 
     return new Promise((resolve, reject) => {
       const tick = () => {

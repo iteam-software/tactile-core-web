@@ -1,10 +1,10 @@
 
 import {Engine} from './engine';
-import {System} from './system';
+import {Updater} from './updater';
 import {Renderer} from './renderer';
 
 // eslint-disable-next-line
-class TestSystem extends System {
+class TestUpdater extends Updater {
   // eslint-disable-next-line
   constructor() {
     super();
@@ -31,7 +31,7 @@ class RenderSystem extends Renderer {
 }
 
 // eslint-disable-next-line
-class ThrowingSystem extends System {
+class ThrowingSystem extends Updater {
   // eslint-disable-next-line  
   update(delta) {
     throw new Error('This system throws!');
@@ -46,9 +46,9 @@ it('should be constructable', () => {
   expect(new Engine()).not.toBeNull();
 });
 
-it('should add a system', () => {
+it('should add an updater', () => {
   const engine = new Engine();
-  const system = new TestSystem();
+  const system = new TestUpdater();
   const id = engine.addSystem(system);
   expect(id).toBe(Engine.getSystemId(system));
   expect(engine._systems.size).toBe(1);
@@ -57,9 +57,9 @@ it('should add a system', () => {
 it('should add a renderer', () => {
   const engine = new Engine();
   const renderer = new RenderSystem();
-  const id = engine.addRenderer(renderer);
+  const id = engine.addSystem(renderer);
   expect(id).toBe(Engine.getSystemId(renderer));
-  expect(engine._renderers.size).toBe(1);
+  expect(engine._systems.size).toBe(1);
 });
 
 it('should throw when you try to add a null system', () => {
@@ -74,14 +74,14 @@ it('should throw when you try to add an invalid system', () => {
 
 it('should remove a system given a system id', () => {
   const engine = new Engine();
-  const id = engine.addSystem(new TestSystem());
+  const id = engine.addSystem(new TestUpdater());
   engine.removeSystem(id);
   expect(engine._systems.size).toBe(0);
 });
 
 it('should remove a system given a system', () => {
   const engine = new Engine();
-  const system = new TestSystem();
+  const system = new TestUpdater();
   engine.addSystem(system);
 
   // Pre act assertion
@@ -96,7 +96,7 @@ it('should start and stop', () => {
   jest.useFakeTimers();
 
   const engine = new Engine();
-  const system = new TestSystem();
+  const system = new TestUpdater();
   engine.addSystem(system);
 
   const promise = engine.start().then(() => {
