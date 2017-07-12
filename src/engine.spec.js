@@ -1,6 +1,7 @@
 
 import {Engine} from './engine';
 import {System} from './system';
+import {Renderer} from './renderer';
 
 // eslint-disable-next-line
 class TestSystem extends System {
@@ -21,6 +22,12 @@ class TestSystem extends System {
   reducer(state = {}, action) {
     return state;
   }
+}
+
+// eslint-disable-next-line  
+class RenderSystem extends Renderer {
+  // eslint-disable-next-line  
+  draw(delta, state) {}
 }
 
 // eslint-disable-next-line
@@ -45,6 +52,14 @@ it('should add a system', () => {
   const id = engine.addSystem(system);
   expect(id).toBe(Engine.getSystemId(system));
   expect(engine._systems.size).toBe(1);
+});
+
+it('should add a renderer', () => {
+  const engine = new Engine();
+  const renderer = new RenderSystem();
+  const id = engine.addRenderer(renderer);
+  expect(id).toBe(Engine.getSystemId(renderer));
+  expect(engine._renderers.size).toBe(1);
 });
 
 it('should throw when you try to add a null system', () => {

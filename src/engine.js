@@ -1,7 +1,8 @@
 
 import {createStore, combineReducers} from 'redux';
-import {System} from './system';
 import {OrderedMap} from 'immutable';
+import {Updater} from './updater';
+import {Renderer} from './renderer';
 import {Timer} from './timer';
 
 /**
@@ -13,47 +14,33 @@ export class Engine {
    * @param {Store} state The redux game state.
    */
   constructor(state) {
+    this._gameState = state || {};
     this._isRunning = false;
     this._store = null;
     this._systems = new OrderedMap();
-    this._renderers = new OrderedMap();
-    this._gameState = state || {};
   }
 
   /**
    * Add a new system to the engine. Systems are updated in the order they
    * are added. If a system with the id of the added system already exists in
-   * the engine, it will be replaced.
-   * @param {System} system The system to add to the engine.
+   * the engine, it will be replaced. A system is either a renderer or an
+   * updater.
+   * @param {Updater | Renderer} system The system to add to the engine.
    * @return {string} The id of the system that was added.
    */
   addSystem(system) {
-    if (!system || !(system instanceof System)) {
-      throw new Error('The system must be of type Tactile.System.');
+    if (!system) {
+      throw new Error('The system must be non-null.');
     }
 
     const id = Engine.getSystemId(system);
-    this._systems = this._systems.set(id, system);
+    if (system instanceof Updater || system instanceof Renderer) {
+      this._systems = this._systems.set(id, system);
+    } else {
+      throw new Error('The system must be a Renderer or Updater');
+    }
 
     return id;
-  }
-
-  /**
-   * Attempts to remove the given system from the engine. This method is
-   * idempotent.
-   * @param {string | System} system The system (or id) to remove.
-   */
-  removeSystem(system) {
-    let id;
-    if (typeof system === 'string') {
-      id = system;
-    } else if (system instanceof System) {
-      id = Engine.getSystemId(system);
-    }
-
-    if (id) {
-      this._systems = this._systems.delete(id);
-    }
   }
 
   /**

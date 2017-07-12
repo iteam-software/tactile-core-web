@@ -2,7 +2,7 @@
 /**
  * System base class.
  */
-export class System {
+export class Updater {
   /**
    * Update the system.
    * @param {number} delta The engine delta.
