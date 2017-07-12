@@ -92,12 +92,33 @@ it('should remove a system given a system', () => {
   expect(engine._systems.size).toBe(0);
 });
 
+it('should remove a renderer given a renderer', () => {
+  const engine = new Engine();
+  const renderer = new RenderSystem();
+  engine.addSystem(renderer);
+
+  // Pre act assertion
+  expect(engine._systems.size).toBe(1);
+
+  // Act
+  engine.removeSystem(renderer);
+  expect(engine._systems.size).toBe(0);
+});
+
+it('should allow removeSystem to be called idempotently', () => {
+  const engine = new Engine();
+  // Calling removeSystem with an unexpected type should not throw.
+  expect(() => engine.removeSystem(false)).not.toThrow();
+});
+
 it('should start and stop', () => {
   jest.useFakeTimers();
 
   const engine = new Engine();
   const system = new TestUpdater();
+  const renderer = new RenderSystem();
   engine.addSystem(system);
+  engine.addSystem(renderer);
 
   const promise = engine.start().then(() => {
     expect(system.runCount).toBe(2);
