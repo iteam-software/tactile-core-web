@@ -11,12 +11,13 @@ export class System {
    * @param {object} action The action we may want to handle
    * @return {Set} The new state.
    */
-  componentsReducer(state = new Map(), {type, ...action}) {
+  componentsReducer(state = new Map(), {type, id, ...action}) {
     switch (type) {
       case 'Entity/Position':
-        if (state.has(action.id)) {
-          const {position, ...rest} = state.get(action.id);
-          return state.merge([{position, ...rest}]);
+        if (state.has(id)) {
+          const component = state.get(id);
+          delete component.position;
+          return state.set(id, {position: action.position, ...component});
         }
         break;
       case 'Entity/Create':
