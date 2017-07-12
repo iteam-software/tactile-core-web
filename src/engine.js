@@ -85,7 +85,7 @@ export class Engine {
       .filter((s) => s instanceof Updater)
       .toArray();
     const reducers = updaters.map((s) => ({
-      [Engine.getSystemId(s)]: s.reducer,
+      [Engine.getSystemId(s)]: s.reducer.bind(s),
     }));
 
     // Setup the store
