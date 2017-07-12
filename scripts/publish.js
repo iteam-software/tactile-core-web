@@ -35,6 +35,7 @@ if (level) {
         const versionBackup = pkg.version;
         const devDepsBackup = pkg.devDependencies;
         const scriptsBackup = pkg.scripts;
+        const jestBackup = pkg.jest;
 
         pkg.version = semver.inc(pkg.version, level);
         fs.writeFile('./package.json', beautify(pkg, null, 2), () => {});
@@ -43,6 +44,7 @@ if (level) {
 
         delete pkg.devDependencies;
         delete pkg.scripts;
+        delete pkg.jest;
 
         console.log('- Writing package files for publish');
 
@@ -79,6 +81,7 @@ if (level) {
             pkg.devDependencies = devDepsBackup;
             pkg.scripts = scriptsBackup;
             pkg.version = versionBackup;
+            pkg.jest = jestBackup;
 
             fs.writeFile('./package.json', beautify(pkg, null, 2), () => {});
           }
