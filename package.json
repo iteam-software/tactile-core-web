@@ -1,6 +1,6 @@
 {
   "name": "tactile-core-web",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "The tactile core package",
   "main": "tactile-core.js",
   "scripts": {
@@ -37,6 +37,7 @@
     "eslint-config-google": "^0.8.0",
     "jest": "^20.0.4",
     "json-beautify": "^1.0.1",
+    "node-cmd": "^3.0.0",
     "performance-now": "^2.1.0",
     "semver": "^5.3.0",
     "simple-git": "^1.73.0",

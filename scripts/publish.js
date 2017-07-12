@@ -6,8 +6,8 @@ const beautify = require('json-beautify');
 const pkg = require('../package.json');
 const args = require('args');
 const semver = require('semver');
-const {spawnSync} = require('child_process');
 const git = require('simple-git');
+const cmd = require('node-cmd');
 
 args
   .option(
@@ -31,6 +31,10 @@ if (level) {
         console.error(stats.toString());
       } else {
         console.log('Build complete!');
+
+        const versionBackup = pkg.version;
+        const devDepsBackup = pkg.devDependencies;
+        const scriptsBackup = pkg.scripts;
 
         pkg.version = semver.inc(pkg.version, level);
         fs.writeFile('./package.json', beautify(pkg, null, 2), () => {});
@@ -56,19 +60,27 @@ if (level) {
 
         console.log('- Running npm publish');
 
-        try {
-          console.log(spawnSync('npm', ['publish'], {cwd: './dist'}));
-        } catch (e) {
-          git.reset('hard');
-          throw e;
-        }
+        const npmPublish = cmd.run('npm publish dist');
+        npmPublish.stderr.on('data', (data) => console.error(data));
+        npmPublish.on('close', (code) => {
+          if (code === 0) {
+            console.log('- Creating publish commit');
+            git()
+              .add('./*')
+              .commit(`chore: release v${pkg.version}`)
+              .addTag(`v${pkg.version}`)
+              .push('origin', 'master');
 
-        console.log('- Creating publish commit');
-        git()
-          .add('./*')
-          .commit(`chore: release v${pkg.version}`)
-          .addTag(`v${pkg.version}`)
-          .push('origin', 'master');
+            console.log('Publish complete!');
+          } else {
+            console.log('- Reverting package.json');
+            pkg.devDependencies = devDepsBackup;
+            pkg.scripts = scriptsBackup;
+            pkg.version = versionBackup;
+
+            fs.writeFile('./package.json', beautify(pkg, null, 2), () => {});
+          }
+        });
       }
     });
 } else {
