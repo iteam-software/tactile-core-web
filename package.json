@@ -5,7 +5,8 @@
   "main": "tactile-core.js",
   "scripts": {
     "test": "jest",
-    "build": "node scripts/build.js"
+    "build": "node scripts/build.js",
+    "coveralls": "jest --coverage && node ./node_modules/coveralls/bin/coveralls.js < ./coverage/lcov.info"
   },
   "repository": {
     "type": "git",
@@ -29,6 +30,7 @@
     "babel-plugin-transform-object-rest-spread": "^6.23.0",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-es2017": "^6.24.1",
+    "coveralls": "^2.13.1",
     "eslint": "^4.1.1",
     "eslint-config-google": "^0.8.0",
     "jest": "^20.0.4",
