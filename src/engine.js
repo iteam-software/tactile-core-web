@@ -103,21 +103,14 @@ export class Engine {
   }
 
   /**
-   * 
-   * @param {Array} systems The systems array
-   * @return {Array} An array of update callbacks.
+   * Create an array of callbacks for the given method name mapped from the
+   * given set of systems.
+   * @param {Array} systems An array of systems from which to map callbacks.
+   * @param {string} name The name of the callback to map.
+   * @return {Array} An array of callbacks.
    */
-  static makeUpdaters(systems) {
-    return systems.map((s) => s.update.bind(s));
-  }
-
-  /**
-   * 
-   * @param {Array} renderers The renderers to extract the draw from.
-   * @return {Array} An array of draw callbacks.
-   */
-  static makeRenderers(renderers) {
-    return renderers.map((r) => r.draw.bind(r));
+  static makeSystemCallbacks(systems, name) {
+    return systems.map((s) => s[name].bind(s));
   }
 
   /**
@@ -128,8 +121,8 @@ export class Engine {
    */
   _singleThreadedRun(updaters, renderers) {
     const timer = new Timer();
-    const renderUpdaters = Engine.makeRenderers(renderers);
-    const systemUpdaters = Engine.makeUpdaters(updaters);
+    const renderCallbacks = Engine.makeSystemCallbacks(renderers, 'draw');
+    const updateCallbacks = Engine.makeSystemCallbacks(updaters, 'update');
 
     return new Promise((resolve, reject) => {
       const tick = () => {
@@ -137,8 +130,8 @@ export class Engine {
         const state = this._store.getState();
 
         try {
-          this._runUpdater(renderUpdaters, delta, state);
-          this._runUpdater(systemUpdaters, delta, this._store);
+          this._runCallbacks(renderCallbacks, delta, state);
+          this._runCallbacks(updateCallbacks, delta, this._store);
           timer.tick();
         } catch (e) {
           reject(e);
@@ -156,12 +149,12 @@ export class Engine {
   }
 
   /**
-   * Run some updaters.
-   * @param {Array} updaters An array of functions meant to update.
+   * Run a set of callbacks.
+   * @param {Array} updaters An array of functions meant to run.
    * @param {number} delta The delta for this step.
    * @param {object} store The game store.
    */
-  _runUpdater(updaters, delta, store) {
+  _runCallbacks(updaters, delta, store) {
     for (let i = 0; i < updaters.length; ++i) {
       updaters[i](delta, store);
     }
