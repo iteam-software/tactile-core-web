@@ -11,7 +11,7 @@ export class System {
    * @param {object} action The action we may want to handle
    * @return {Set} The new state.
    */
-  componentsReducer(state = new Map(), {type, id, ...action}) {
+  componentsReducer(state = new Map(), {type, id, systems, ...action}) {
     switch (type) {
       case 'Entity/Position':
         if (state.has(id)) {
@@ -22,14 +22,14 @@ export class System {
         break;
       case 'Entity/Create':
       case 'Entity/Add':
-        if (action.systems.includes(this.getSystemId())) {
-          return state.set(action.id, this.makeComponent(action));
+        if (systems.includes(this.getSystemId())) {
+          return state.set(id, this.makeComponent(action));
         }
         break;
       case 'Entity/Destroy':
       case 'Entity/Remove':
         if (action.system.includes(this.getSystemId())) {
-          return state.delete(action.id);
+          return state.delete(id);
         }
         break;
       case `${this.getSystemId()}/Update`:

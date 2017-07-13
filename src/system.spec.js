@@ -2,6 +2,16 @@
 import {System} from './system';
 import {Map} from 'immutable';
 
+const position = {x: 1, y: 1};
+const component = {abc: {position}};
+// eslint-disable-next-line
+class TestSystem extends System {
+// eslint-disable-next-line
+  makeComponent(init) {
+    return {...init};
+  }
+}
+
 it('should return the original state for an unhandled action', () => {
   const system = new System();
   const state = system.componentsReducer({hello: 'world!'}, {type: 'None'});
@@ -10,8 +20,27 @@ it('should return the original state for an unhandled action', () => {
 
 it('should update the position of a component', () => {
   const system = new System();
-  const components = new Map({abc: {position: {x: 1, y: 1}}});
+  const components = new Map(component);
   const action = {type: 'Entity/Position', position: {x: 2, y: 2}, id: 'abc'};
   const state = system.componentsReducer(components, action);
   expect(state.get('abc')).toEqual({position: {x: 2, y: 2}});
+});
+
+it('should not update the position of a component it doesn\'t own', () => {
+  const system = new System();
+  const components = new Map(component);
+  const action = {type: 'Entity/Position', position, id: 'cdf'};
+  const state = system.componentsReducer(components, action);
+  expect(state).toEqual(new Map(component));
+});
+
+it('should create a component when an entity asks for one', () => {
+  const system = new TestSystem();
+  const init = {id: 'abc', position};
+  const action = {
+    type: 'Entity/Create',
+    systems: [system.getSystemId()],
+    ...init};
+  const state = system.componentsReducer(new Map(), action);
+  expect(state).toEqual(new Map({abc: {position}}));
 });
