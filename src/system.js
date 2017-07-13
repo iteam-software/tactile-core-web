@@ -28,7 +28,7 @@ export class System {
         break;
       case 'Entity/Destroy':
       case 'Entity/Remove':
-        if (action.system.includes(this.getSystemId())) {
+        if (systems.includes(this.getSystemId())) {
           return state.delete(id);
         }
         break;

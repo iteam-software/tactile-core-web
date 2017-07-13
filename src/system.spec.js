@@ -26,7 +26,7 @@ it('should update the position of a component', () => {
   expect(state.get('abc')).toEqual({position: {x: 2, y: 2}});
 });
 
-it('should not update the position of a component it doesn\'t own', () => {
+it('should not update the position of a component it does not own', () => {
   const system = new System();
   const components = new Map(component);
   const action = {type: 'Entity/Position', position, id: 'cdf'};
@@ -43,4 +43,40 @@ it('should create a component when an entity asks for one', () => {
     ...init};
   const state = system.componentsReducer(new Map(), action);
   expect(state).toEqual(new Map({abc: {position}}));
+});
+
+it('should not create a component if the system is not present', () => {
+  const system = new TestSystem();
+  const init = {id: 'abc', position};
+  const action = {
+    type: 'Entity/Create',
+    systems: [],
+    ...init,
+  };
+  const state = system.componentsReducer(new Map(), action);
+  expect(state).toEqual(new Map());
+});
+
+it('should remove a component if the parent entity is destroyed', () => {
+  const system = new TestSystem();
+  const components = new Map({abc: {position}});
+  const action = {
+    type: 'Entity/Destroy',
+    systems: [system.getSystemId()],
+    id: 'abc',
+  };
+  const state = system.componentsReducer(components, action);
+  expect(state).toEqual(new Map());
+});
+
+it('should remove a component if the entity asks for it', () => {
+  const system = new TestSystem();
+  const components = new Map({abc: {position}});
+  const action = {
+    type: 'Entity/Remove',
+    systems: [system.getSystemId()],
+    id: 'abc',
+  };
+  const state = system.componentsReducer(components, action);
+  expect(state).toEqual(new Map());
 });
