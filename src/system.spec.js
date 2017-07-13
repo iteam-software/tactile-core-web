@@ -80,3 +80,20 @@ it('should remove a component if the entity asks for it', () => {
   const state = system.componentsReducer(components, action);
   expect(state).toEqual(new Map());
 });
+
+it('should not remoev a component the system being in the list', () => {
+  const system = new TestSystem();
+  const components = new Map({abc: {position}});
+  const action = {
+    type: 'Entity/Remove',
+    systems: [],
+    id: 'abc',
+  };
+  const state = system.componentsReducer(components, action);
+  expect(state).toEqual(new Map({abc: {position}}));
+});
+
+it('should throw if makeComponent is directly called', () => {
+  const system = new System();
+  expect(() => system.makeComponent()).toThrowError('Not implemented');
+});
