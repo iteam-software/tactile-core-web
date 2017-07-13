@@ -1,7 +1,7 @@
 
 import shortid from 'shortid';
 
-export const EntityMiddleware = (store) => (next) => ({type, ...rest}) => {
+export const entityMiddleware = (store) => (next) => ({type, ...rest}) => {
   if (type !== 'SpawnEntity') {
     return next({type, ...rest});
   }

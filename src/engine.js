@@ -4,7 +4,7 @@ import {OrderedMap} from 'immutable';
 import {Updater} from './updater';
 import {Renderer} from './renderer';
 import {Timer} from './timer';
-import {EntityMiddleware} from './middleware/entity';
+import {entityMiddleware} from './middleware/entity';
 
 /**
  * The core engine class.
@@ -98,7 +98,7 @@ export class Engine {
     this._store = createStore(
       rootReducer,
       this._gameState,
-      applyMiddleware(EntityMiddleware));
+      applyMiddleware(entityMiddleware));
 
     // Dispatch the start
     this._store.dispatch({
