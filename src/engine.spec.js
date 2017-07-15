@@ -9,6 +9,7 @@ class TestUpdater extends Updater {
   constructor() {
     super();
     this.runCount = 0;
+    this.expectedState = false;
   }
   /**
    * Handle test updating
@@ -20,7 +21,13 @@ class TestUpdater extends Updater {
       type: 'Hello/World!',
     });
     ++this.runCount;
+    this.expectedState =
+      typeof store.components !== 'undefined' &&
+      typeof store.internal !== 'undefined' &&
+      typeof store.internal.count !== 'undefined' &&
+      typeof store.engine === 'undefined';
   }
+
   // eslint-disable-next-line  
   reducer(state = {}, action) {
     if (action.type === 'Hello/World!') {
@@ -121,7 +128,7 @@ it('should allow removeSystem to be called idempotently', () => {
   expect(() => engine.removeSystem(false)).not.toThrow();
 });
 
-it('should start and stop', () => {
+it('should start and stop and slice the store per system', () => {
   jest.useFakeTimers();
 
   const engine = new Engine();
@@ -132,6 +139,7 @@ it('should start and stop', () => {
 
   const promise = engine.start().then(() => {
     expect(system.runCount).toBe(2);
+    expect(system.expectedState).toBe(true);
     return true;
   });
   engine.stop();

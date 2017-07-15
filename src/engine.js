@@ -128,6 +128,7 @@ export class Engine {
     return systems.map((s) => ({
       callback: s[name].bind(s),
       type: `${s.getSystemId()}/Update`,
+      system: s.getSystemId(),
     }));
   }
 
@@ -194,9 +195,14 @@ export class Engine {
   _runCallbacks(updaters, delta, store, dispatchUpdate = false) {
     for (let i = 0; i < updaters.length; ++i) {
       if (dispatchUpdate) {
+        // Make the store
+        const mappedStore = {
+          dispatch: store.dispatch.bind(store),
+          ...store.getState()[updaters[i].system],
+        };
         store.dispatch({
           type: updaters[i].type,
-          components: updaters[i].callback(delta, store),
+          components: updaters[i].callback(delta, mappedStore),
         });
       } else {
         updaters[i].callback(delta, store);
