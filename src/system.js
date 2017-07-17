@@ -16,8 +16,7 @@ export class System {
       case 'Entity/Position':
         if (state.has(id)) {
           const component = state.get(id);
-          delete component.position;
-          return state.set(id, {position: action.position, ...component});
+          return state.set(id, this.updatePosition(component, action.position));
         }
         break;
       case 'Entity/Create':
@@ -63,5 +62,16 @@ export class System {
    */
   makeComponent(init) {
     throw new Error('Not implemented');
+  }
+
+  /**
+   * Update the position of the given component.
+   * @param {object} component The component to update the position for
+   * @param {object} position The new position.
+   * @return {object} The updated component.
+   */
+  updatePosition(component, position) {
+    component.position = position;
+    return component;
   }
 }
