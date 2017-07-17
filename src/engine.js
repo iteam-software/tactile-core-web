@@ -82,7 +82,13 @@ export class Engine {
     const updaters = this._systems
       .filter((s) => s instanceof Updater)
       .toArray();
-    const reducers = updaters.map((s) => ({
+    const rendererReducers = renderers.map((r) => ({
+      [r.getSystemId()]: combineReducers({
+        internal: r.reducer.bind(r),
+        components: r.componentsReducer.bind(r),
+      }),
+    }));
+    const updaterReducers = updaters.map((s) => ({
       [s.getSystemId()]: combineReducers({
         internal: s.reducer.bind(s),
         components: s.componentsReducer.bind(s),
@@ -90,10 +96,12 @@ export class Engine {
     }));
 
     // Setup the store
-    const systemReducers = Object.assign(...reducers);
+    const systemReducers = Object.assign(...updaterReducers);
+    const renderReducers = Object.assign(...rendererReducers);
     const rootReducer = combineReducers({
       engine: this._engineReducer.bind(this),
       ...systemReducers,
+      ...renderReducers,
     });
     this._store = createStore(
       rootReducer,
@@ -205,7 +213,7 @@ export class Engine {
           components: updaters[i].callback(delta, mappedStore),
         });
       } else {
-        updaters[i].callback(delta, store);
+        updaters[i].callback(delta, store[updaters[i].system]);
       }
     }
   }

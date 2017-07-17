@@ -28,23 +28,32 @@ class TestUpdater extends Updater {
       typeof store.engine === 'undefined';
   }
 
-  // eslint-disable-next-line  
+  // eslint-disable-next-line
   reducer(state = {}, action) {
     if (action.type === 'Hello/World!') {
       return {count: this.runCount};
     }
     return state;
   }
-  // eslint-disable-next-line  
+  // eslint-disable-next-line
   makeComponent(init) {
     return {hello: 'World!'};
   }
 }
 
-// eslint-disable-next-line  
+// eslint-disable-next-line
 class RenderSystem extends Renderer {
-  // eslint-disable-next-line  
-  draw(delta, state) {}
+  // eslint-disable-next-line
+  draw(delta, state) {
+    if (typeof state.engine !== 'undefined') {
+      throw new Error('Invalid state exposed to a renderer.');
+    }
+  }
+
+  // eslint-disable-next-line
+  reducer(state = {}, action) {
+    return state;
+  }
 }
 
 // eslint-disable-next-line
@@ -155,6 +164,7 @@ it('should reject when a system throws', () => {
   const engine = new Engine();
   const system = new ThrowingSystem();
   engine.addSystem(system);
+  engine.addSystem(new RenderSystem());
 
   const promise = engine.start();
   engine.stop();
@@ -169,6 +179,7 @@ it('should perform reasonably well', () => {
   const engine = new Engine();
   const system = new TestUpdater();
   engine.addSystem(system);
+  engine.addSystem(new RenderSystem());
 
   return expect(new Promise((resolve, reject) => {
     engine.start()

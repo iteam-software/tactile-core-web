@@ -49,6 +49,15 @@ export class System {
   }
 
   /**
+   * System reducer.
+   * @param {object} state The state we are reducing from.
+   * @param {object} action The action we may need to reduce.
+   */
+  reducer(state, action) {
+    throw new Error('Not implemented');
+  }
+
+  /**
    * Create a new component.
    * @param {object} init the initialization data for this component.
    */
