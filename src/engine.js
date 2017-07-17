@@ -202,18 +202,19 @@ export class Engine {
    */
   _runCallbacks(updaters, delta, store, dispatchUpdate = false) {
     for (let i = 0; i < updaters.length; ++i) {
+      const updater = updaters[i];
       if (dispatchUpdate) {
         // Make the store
         const mappedStore = {
           dispatch: store.dispatch.bind(store),
-          ...store.getState()[updaters[i].system],
+          ...store.getState()[updater.system],
         };
         store.dispatch({
-          type: updaters[i].type,
-          components: updaters[i].callback(delta, mappedStore),
+          type: updater.type,
+          components: updater.callback(delta, mappedStore),
         });
       } else {
-        updaters[i].callback(delta, store[updaters[i].system]);
+        updater.callback(delta, store[updater.system]);
       }
     }
   }
