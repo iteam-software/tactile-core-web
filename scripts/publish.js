@@ -1,7 +1,6 @@
 
 const webpack = require('webpack');
 const fs = require('fs');
-const path = require('path');
 const beautify = require('json-beautify');
 const pkg = require('../package.json');
 const args = require('args');
@@ -40,29 +39,9 @@ if (level) {
         pkg.version = semver.inc(pkg.version, level);
         fs.writeFile('./package.json', beautify(pkg, null, 2), () => {});
 
-        console.log(`Beginning publish of v${pkg.version}...`);
-
-        delete pkg.devDependencies;
-        delete pkg.scripts;
-        delete pkg.jest;
-
-        console.log('- Writing package files for publish');
-
-        fs.writeFile(
-          path.resolve(__dirname, '../dist/package.json'),
-          beautify(pkg, null, 2),
-          () => {}
-        );
-
-        fs.createReadStream('./README.md')
-          .pipe(fs.createWriteStream('./dist/README.md'));
-
-        fs.createReadStream('./LICENSE')
-          .pipe(fs.createWriteStream('./dist/LICENSE'));
-
         console.log('- Running npm publish');
 
-        const npmPublish = cmd.run('npm publish dist');
+        const npmPublish = cmd.run('npm publish');
         npmPublish.stderr.on('data', (data) => console.error(data));
         npmPublish.stdout.on('data', (data) => console.log(data));
         npmPublish.on('close', (code) => {

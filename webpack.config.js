@@ -7,8 +7,14 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'tactile-core.js',
-    libraryTarget: 'commonjs2',
+    libraryTarget: 'umd',
+    library: 'Tactile',
   },
+  externals: [
+    'immutable',
+    'redux',
+    'shortid',
+  ],
   module: {
     rules: [
       {
